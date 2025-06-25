@@ -1,0 +1,23 @@
+#addTaskForm{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	border: 1px solid #eee;
+}
+
+#addTaskForm input{
+	flex: 1;
+	border: none;
+}
+#addTaskForm button{
+	border: none;
+	border-radius: 0;
+}
+
+.done-task{
+	color: red !important;
+	text-decoration: line-through;
+	font-style: italic;
+}

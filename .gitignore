@@ -1,0 +1,4 @@
+*.pyc
+.python-version
+db.sqlite3
+venv
