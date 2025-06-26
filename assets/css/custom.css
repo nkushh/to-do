@@ -1,3 +1,23 @@
+.default-btn{
+	background: #fff;
+	border: 1px solid #333;
+}
+
+.btns-div{
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+}
+
+.btns-div .btn{
+	font-size: .8em;
+}
+
+.btns-div .btn:hover{
+	background-color: #fff;
+	border: 1px solid;
+}
+
 #addTaskForm{
 	display: flex;
 	flex-direction: row;

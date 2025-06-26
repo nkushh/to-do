@@ -16,7 +16,16 @@
 	<div class="offset-md-3 col-md-6">
 		<div class="card">
 			<div class="card-header">
-				<h5>My Tasks</h5>
+				<div class="row">
+					<div class="col-md-4"><h5>My Tasks</h5></div>
+					<div class="col-md-4" id="tasksHeader"></div>
+					<div class="col-md-4 btns-div">
+						<a href="{% url 'tasks:home' %}" class="btn default-btn" id="allTasksBtn"><i class="bi bi-list"></i> All</a>
+						<button class="btn default-btn" id="todayTasksBtn"><i class="bi bi-calendar3"></i> Today</button>
+						<button class="btn default-btn" id="pendingTasksBtn"><i class="bi bi-list-task"></i> Pending</button>
+					</div>
+				</div>
+				
 			</div>
 			<div class="card-body">
 				<table class="table">
@@ -36,6 +45,13 @@
 {% endblock %}
 {% block scripts %}
 <script>
+	const header_title = document.getElementById('tasksHeader');
+	const header_title_text = document.createElement('h5');
+	const all_tasks_btn = document.getElementById('allTasksBtn');
+	const tasks_today_btn = document.getElementById('todayTasksBtn');
+	const pending_tasks_btn = document.getElementById('pendingTasksBtn');
+	const tasksRow = document.getElementById('tasksRow');
+
 	function format_date(date_info){
 		const formattedDate = new Date(date_info)
 			.toLocaleString('en-us', {
@@ -56,8 +72,8 @@
 		fetch('tasks/')
 			.then(res => res.json())
 			.then(tasks => {
-				const tasksRow = document.getElementById('tasksRow');
 				tasksRow.innerHTML = '';
+				all_tasks_btn.style.display = 'none';
 
 				tasks.forEach(task => {
 					const row = document.createElement('tr');
@@ -76,6 +92,69 @@
 				})
 			})
 			.catch(error => console.log(error))
+	})
+
+	tasks_today_btn.addEventListener('click', (event) => {
+		
+		fetch('tasks-today/')
+			.then(res => res.json())
+			.then(tasks => {
+				tasksRow.innerHTML = '';
+				header_title_text.innerHTML = "Today";
+				header_title.appendChild(header_title_text);
+				tasks_today_btn.style.display = 'none';
+				all_tasks_btn.style.display = 'flex';
+				pending_tasks_btn.style.display = 'flex';
+
+				tasks.forEach(task => {
+					const row = document.createElement('tr');
+					row.setAttribute('data-task-id', task.id);
+
+					row.innerHTML = `
+					<td class="${task.task_complete ? 'done-task' : ''}">${task.task_title}</td>
+					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
+					<td>${format_date(task.date_created)}</td>
+					<td class="text-center">
+						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
+						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
+					</td>
+					`;
+					tasksRow.appendChild(row);
+				})
+			})
+			.catch(error => console.log(`Errors: ${error}`))
+	})
+
+
+	pending_tasks_btn.addEventListener('click', () =>{
+		fetch('pending-tasks/')
+			.then(res => res.json())
+			.then(tasks => {
+				tasksRow.innerHTML = ''
+				
+				header_title_text.innerHTML = "Pending";
+				header_title.appendChild(header_title_text);
+				pending_tasks_btn.style.display = 'none';
+				all_tasks_btn.style.display = 'flex';
+				tasks_today_btn.style.display = 'flex';
+
+				tasks.forEach(task => {
+					const row = document.createElement('tr');
+					row.setAttribute('data-task-id', task.id);
+
+					row.innerHTML = `
+					<td class="${task.task_complete ? 'done-task' : ''}">${task.task_title}</td>
+					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
+					<td>${format_date(task.date_created)}</td>
+					<td class="text-center">
+						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
+						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
+					</td>
+					`;
+					tasksRow.appendChild(row);
+				})
+			})
+			.catch(error => console.log(`Error: ${error}`))
 	})
 
 
@@ -119,10 +198,10 @@
 	})
 
 	// Mark a task as done
-	document.addEventListener('click', (e) => {
-		if(e.target.closest('.done-btn')){
-			e.preventDefault();
-			const row = e.target.closest('tr');
+	document.addEventListener('click', (event) => {
+		if(event.target.closest('.done-btn')){
+			event.preventDefault();
+			const row = event.target.closest('tr');
 			const taskId = row.getAttribute('data-task-id');
 
 			fetch(`task-detail/${taskId}/`, {
@@ -157,10 +236,10 @@
 	})
 
 	// Reverse a done task
-	document.addEventListener('click', (e) => {
-		if(e.target.closest('.undo-btn')){
-			e.preventDefault();
-			const row = e.target.closest('tr');
+	document.addEventListener('click', (event) => {
+		if(event.target.closest('.undo-btn')){
+			event.preventDefault();
+			const row = event.target.closest('tr');
 			const taskId = row.getAttribute('data-task-id');
 
 			fetch(`task-detail/${taskId}/`, {
@@ -196,11 +275,11 @@
 
 	// Delete a task.
 	// Select all delete buttons after tasks are loaded
-	document.addEventListener('click', (e) => {
-		if (e.target.closest('.delete-btn')) {
-			e.preventDefault();
+	document.addEventListener('click', (event) => {
+		if (event.target.closest('.delete-btn')) {
+			event.preventDefault();
 
-			const row = e.target.closest('tr');
+			const row = event.target.closest('tr');
 			const taskId = row.getAttribute('data-task-id');
 
 			fetch(`task-detail/${taskId}/`, {
