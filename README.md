@@ -1,100 +1,85 @@
-**To-Do App - Django REST API with JavaScript Frontend**
+# To-Do App - Django REST API with JavaScript Frontend
 
-**Overview**
+## Overview
 
 This project is a full-stack to-do application built with Django REST Framework for the backend API and vanilla JavaScript with Bootstrap for the frontend. It was developed to improve my API development skills and JavaScript proficiency.
 
-**Features**
+## Features
 
-Task Management:
+- **Task Management**:
+  - Create new tasks
+  - List all tasks
+  - Mark tasks as complete/incomplete
+  - Delete tasks
 
-Create new tasks
+- **API Features**:
+  - RESTful endpoints
+  - Built with Django REST Framework's generic views
+  - JSON responses
 
-List all tasks
+- **Frontend Features**:
+  - Responsive Bootstrap interface
+  - Custom CSS styling
+  - JavaScript functions using `fetch()` for API communication
+  - Dynamic DOM manipulation
 
-Mark tasks as complete/incomplete
+## Technologies Used
 
-Delete tasks
+### Backend
+- Python 3.x
+- Django
+- Django REST Framework
 
-**API Features:**
+### Frontend
+- Vanilla JavaScript (ES6+)
+- Bootstrap 5
+- Custom CSS
+- Fetch API for HTTP requests
 
+## Installation
 
-RESTful endpoints
+### Prerequisites
+- Python 3.8+
+- Node.js (for frontend dependencies if any)
+- pip
 
-Built with Django REST Framework's generic views
+### Setup Instructions
 
-JSON responses
-
-**Frontend Features:**
-
-Responsive Bootstrap interface
-
-Custom CSS styling
-
-JavaScript functions using fetch() for API communication
-
-Dynamic DOM manipulation
-
-**Technologies Used**
-
-Backend
-Python 3.x
-
-Django
-
-Django REST Framework
-
-Frontend
-Vanilla JavaScript (ES6+)
-
-Bootstrap 5
-
-Custom CSS
-
-Fetch API for HTTP requests
-
-**Installation**
-
-**Prerequisites**
-
-Python 3.8+
-
-Node.js (for frontend dependencies if any)
-
-pip
-
-**Setup Instructions**
-
-Clone the repository
-
-bash
-git clone https://github.com/yourusername/todo-app.git
-cd todo-app
-Set up a virtual environment (recommended)
-
-bash
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/todo-app.git
+   cd todo-app
+2. **Set up a virtual environment (recommended)**
+```
 python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-Install Python dependencies
+source venv/bin/activate # On Windows use `venv\Scripts\activate`
+```
 
-bash
+3. **Install Python dependencies**
+
+```
 pip install -r requirements.txt
-Database setup
+```
 
-bash
+4. **Database setup**
+
+```
 python manage.py migrate
-Run the development server
+```
+5. **Run the development server**
 
-bash
+```
 python manage.py runserver
-Access the application
+```
+
+6. **Access the application**
 
 Backend API: http://localhost:8000/
 
 Frontend: http://localhost:8000/
 
 **API Endpoints**
-
+```
 Endpoint	Method	Description
 
 /api/tasks/	GET	List all tasks
@@ -106,11 +91,12 @@ Endpoint	Method	Description
 /api/tasks/<id>/	PUT/PATCH	Update a task (mark as complete/incomplete)
 
 /api/tasks/<id>/	DELETE	Delete a task
+```
 
 **Project Structure**
 
 text
-todo-app/
+```todo-app/
 ├── backend/               # Django project files
 │   ├── settings.py        # Django settings
 │   ├── urls.py            # Main URL routing
@@ -132,29 +118,15 @@ todo-app/
 │   └── base.html          # Base template
 ├── requirements.txt       # Python dependencies
 └── README.md              # This file
-Custom JavaScript Implementation
-The frontend uses vanilla JavaScript with several custom functions:
-
-fetchTasks() - Retrieves all tasks from the API
-
-createTask() - Posts a new task to the API
-
-updateTaskStatus() - Toggles task completion status
-
-deleteTask() - Removes a task
-
-renderTasks() - Dynamically updates the DOM with task data
-
+```
 All API interactions use the fetch() API with proper error handling.
 
 
-Future Improvements
-User authentication
+**Future Improvements**
+- User authentication
 
-Task categories/tags
+- Task categories/tags
 
-Due dates and reminders
+- Due dates and reminders
 
-Drag-and-drop task ordering
-
-Local storage for offline functionality
+- Drag-and-drop task ordering
