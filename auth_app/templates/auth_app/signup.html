@@ -3,4 +3,79 @@
 {% block title %}Signup{% endblock %}
 
 {% block content %}
+<div class="row">
+	<div class="offset-md-3 col-md-6">
+		<div class="card p-3">
+			<form id="signupForm">{% csrf_token %}
+				<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+				<div class="form-group">
+					<input type="email" class="form-control" id="emailAddress" placeholder="Email address" required>
+				</div>
+				<div class="form-group">
+					<input type="text" class="form-control" id="username" placeholder="Username" required>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<input type="password" class="form-control" id="password1" placeholder="Password" required>
+					</div>
+					<div class="col-md-6">
+						<input type="password" class="form-control" id="password2" placeholder="Repeat password" required>
+					</div>
+					<div class="password-err-msg" id="errMsg" style="display: none;"></div>
+				</div>
+				<div class="form-btns">
+					<button type="reset" class="btn btn-danger">Reset</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+	const signup_form = document.getElementById('signupForm');
+	const err_msg = document.getElementById('errMsg');
+
+	signup_form.addEventListener('submit', (event) => {
+		event.preventDefault();
+		// GET FORM VALUES
+		const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+		const email = document.getElementById('emailAddress').value;
+		const username = document.getElementById('username').value;
+		const password_one = document.getElementById('password1').value;
+		const confirmation_password = document.getElementById('password2').value;
+
+		// check passwords match
+		if(password_one !== confirmation_password){
+			let message = "Error! Passwords did not match.";
+			err_msg.innerHTML = message;
+			err_msg.style.display = 'block';
+			return
+		}
+
+		err_msg.style.display = 'none';
+
+		fetch('/auth_app/signup/', {
+			method: 'POST',
+			headers: {
+				'Content-Type' : 'application/json',
+				'X-CSRFToken' : csrfToken
+			},
+			body: JSON.stringify({
+				email: email,
+				username: username,
+				password: password_one
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			signup_form.reset();
+			window.location.href = "/auth_app/user-login/";
+		})
+		.catch(error => console.log(`Error! ${error}`))
+	})
+	
+</script>
 {% endblock %}

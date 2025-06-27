@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="offset-md-4 col-md-4">
+		<div class="card h-100 p-3">
+			<form id="loginForm" class="login-form">{% csrf_token %}
+				<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+				<div class="form-group">
+					<input type="text" class="form-control" id="username" placeholder="Username" required>
+				</div>
+				<div class="form-group">
+					<input type="password" class="form-control" id="password" placeholder="Password" required>
+				</div>
+				
+				<div class="form-btns">
+					<button type="reset" class="btn btn-danger">Reset</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+	const login_form = document.getElementById('loginForm');
+
+	login_form.addEventListener('submit', (event) => {
+		event.preventDefault();
+		const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+		const username = document.getElementById('username').value;
+		const password = document.getElementById('password').value;
+
+		fetch('/auth_app/login/', {
+			method: 'POST',
+			headers: {
+				'Content-Type' : 'application/json',
+				'X-CSRFToken' : csrfToken
+			},
+			body: JSON.stringify({
+				username: username,
+				password: password
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			localStorage.setItem('authToken', data.token);
+			login_form.reset();
+			window.location.href = '/';
+		})
+		.catch(error => console.log(`Error: ${error}`))
+	})
+</script>
+{% endblock %}

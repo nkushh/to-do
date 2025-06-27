@@ -1,3 +1,36 @@
+/* Navbar */
+.navbar{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.navbar-logo a{
+	text-decoration: none;
+}
+
+.navbar-nav a{
+	text-decoration: none;
+	color: inherit;
+}
+
+.navbar-nav{
+	display: flex;
+	justify-content: end;
+	align-items: center;
+}
+
+.navbar-nav ul{
+	display: flex;
+	align-items: center;
+}
+
+.navbar-nav ul li{
+	list-style: none;
+	margin: auto 1em;
+}
+
+
 .default-btn{
 	background: #fff;
 	border: 1px solid #333;
@@ -40,4 +73,33 @@
 	color: red !important;
 	text-decoration: line-through;
 	font-style: italic;
+}
+
+.form-btns{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1em 0;
+	margin: 1em auto;
+}
+
+.form-btns button{
+	margin: auto 1em;
+}
+
+/* Login */
+.form-group{
+	margin: 1em auto;
+}
+
+/* Signup */
+.password-err-msg{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: .5em;
+	margin: 1em auto;
+	border: 2px solid red;
+	color: red;
+	width: fit-content;
 }

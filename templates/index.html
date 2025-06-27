@@ -69,7 +69,13 @@
 	}
 
 	document.addEventListener('DOMContentLoaded', () => {
-		fetch('tasks/')
+		try{
+			fetch('tasks/', {
+				method: "GET",
+				headers: {
+					'Authorization' : `Token ${token}`
+				}
+			})
 			.then(res => res.json())
 			.then(tasks => {
 				tasksRow.innerHTML = '';
@@ -92,11 +98,22 @@
 				})
 			})
 			.catch(error => console.log(error))
+
+		}catch{
+			console.log("You have to be logged in.")
+			window.location.href = "/auth_app/user-login/"
+		}
 	})
 
 	tasks_today_btn.addEventListener('click', (event) => {
-		
-		fetch('tasks-today/')
+		try{
+			fetch('tasks-today/', {
+				method: "GET",
+				headers: {
+					'Authorization' : `Token ${token}`,
+					'Content-Type' : 'application/json'
+				}
+			})
 			.then(res => res.json())
 			.then(tasks => {
 				tasksRow.innerHTML = '';
@@ -123,11 +140,23 @@
 				})
 			})
 			.catch(error => console.log(`Errors: ${error}`))
+		}catch{
+			console.log("you are not logged in");
+			window.location.href = "/auth_app/user-login/"
+		}
+		
 	})
 
 
 	pending_tasks_btn.addEventListener('click', () =>{
-		fetch('pending-tasks/')
+		try{
+			fetch('pending-tasks/', {
+				method: "GET",
+				headers: {
+					'Authorization' : `Token ${token}`,
+					'Content-Type' : 'application/json'
+				}
+			})
 			.then(res => res.json())
 			.then(tasks => {
 				tasksRow.innerHTML = ''
@@ -155,6 +184,11 @@
 				})
 			})
 			.catch(error => console.log(`Error: ${error}`))
+		}catch{
+			console.log("you are not logged in");
+			window.location.href = "/auth_app/user-login/"
+		}
+		
 	})
 
 
@@ -162,142 +196,168 @@
 	const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
 
 	task_form.addEventListener('submit', (event) =>{
-		event.preventDefault();
-		task = document.getElementById('taskField').value;
-		fetch('tasks/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken
-			},
-			body: JSON.stringify({
-				task_title: task
+		try{
+			event.preventDefault();
+			task = document.getElementById('taskField').value;
+			fetch('tasks/', {
+				method: 'POST',
+				headers: {
+					'Authorization': `Token ${token}`, 
+					'Content-Type': 'application/json',
+					'X-CSRFToken': csrfToken
+				},
+				body: JSON.stringify({
+					task_title: task
+				})
+			}).then(res => {
+				return res.json();
 			})
-		}).then(res => {
-			return res.json();
-		})
-		.then(data => {
-			task_form.reset();
+			.then(data => {
+				task_form.reset();
 
-			const task = data;
-			const row = document.createElement('tr');
-			row.setAttribute('data-task-id', task.id);
+				const task = data;
+				const row = document.createElement('tr');
+				row.setAttribute('data-task-id', task.id);
 
-			row.innerHTML = `
-				<td>${task.task_title}</td>
-				<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
-				<td>${format_date(task.date_created)}</td>
-				<td class="text-center">
-					<a href="#" class="done-btn"><i class="bi bi-check-square"></i></a> | 
-					<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
-				</td>
-			`;
-			document.getElementById('tasksRow').appendChild(row);
-		})
-		.catch(error => console.log("ERROR!"))
+				row.innerHTML = `
+					<td>${task.task_title}</td>
+					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
+					<td>${format_date(task.date_created)}</td>
+					<td class="text-center">
+						<a href="#" class="done-btn"><i class="bi bi-check-square"></i></a> | 
+						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
+					</td>
+				`;
+				document.getElementById('tasksRow').appendChild(row);
+			})
+			.catch(error => console.log("ERROR!"))
+
+		}catch{
+			console.log("you are not logged in");
+			window.location.href = "/auth_app/user-login/"
+		}
 	})
 
 	// Mark a task as done
 	document.addEventListener('click', (event) => {
-		if(event.target.closest('.done-btn')){
-			event.preventDefault();
-			const row = event.target.closest('tr');
-			const taskId = row.getAttribute('data-task-id');
+		try{
+			if(event.target.closest('.done-btn')){
+				event.preventDefault();
+				const row = event.target.closest('tr');
+				const taskId = row.getAttribute('data-task-id');
 
-			fetch(`task-detail/${taskId}/`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type' : 'application/json',
-					'X-CSRFToken' : csrfToken
-				},
-				body: JSON.stringify({task_complete: true}),
-			}).then(res => {
-				return res.json()
-			}).then(data => {
-				const statusCell = row.querySelectorAll('td')[1];
-				const actionCell = row.querySelectorAll('td')[3];
+				fetch(`task-detail/${taskId}/`, {
+					method: 'PATCH',
+					headers: {
+						'Authorization' : `Token ${token}`,
+						'Content-Type' : 'application/json',
+						'X-CSRFToken' : csrfToken
+					},
+					body: JSON.stringify({task_complete: true}),
+				}).then(res => {
+					return res.json()
+				}).then(data => {
+					const statusCell = row.querySelectorAll('td')[1];
+					const actionCell = row.querySelectorAll('td')[3];
 
-				// Update status text
-				statusCell.innerHTML = "Complete";
-				const toggleLink = actionCell.querySelector('.done-btn');
-				toggleLink.remove();
+					// Update status text
+					statusCell.innerHTML = "Complete";
+					const toggleLink = actionCell.querySelector('.done-btn');
+					toggleLink.remove();
 
-				const newToggleLink = document.createElement('a');
-				newToggleLink.href = '#';
-				newToggleLink.classList.add('undo-btn');
-				newToggleLink.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
-				// Insert the new link at the beginning of the cell
-				actionCell.insertBefore(newToggleLink, actionCell.firstChild);
+					const newToggleLink = document.createElement('a');
+					newToggleLink.href = '#';
+					newToggleLink.classList.add('undo-btn');
+					newToggleLink.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
+					// Insert the new link at the beginning of the cell
+					actionCell.insertBefore(newToggleLink, actionCell.firstChild);
 
-				const firstCell = row.querySelector('td');
-				firstCell.classList.add('done-task');
-			}).catch(error => console.log(error))
+					const firstCell = row.querySelector('td');
+					firstCell.classList.add('done-task');
+				}).catch(error => console.log(error))
+			}
+
+		}catch{
+			console.log("you are not logged in");
+			window.location.href = "/auth_app/user-login/"
 		}
 	})
 
 	// Reverse a done task
 	document.addEventListener('click', (event) => {
-		if(event.target.closest('.undo-btn')){
-			event.preventDefault();
-			const row = event.target.closest('tr');
-			const taskId = row.getAttribute('data-task-id');
+		try{
+			if(event.target.closest('.undo-btn')){
+				event.preventDefault();
+				const row = event.target.closest('tr');
+				const taskId = row.getAttribute('data-task-id');
 
-			fetch(`task-detail/${taskId}/`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type' : 'application/json',
-					'X-CSRFToken' : csrfToken
-				},
-				body: JSON.stringify({task_complete: false}),
-			}).then(res => {
-				return res.json()
-			}).then(data => {
-				const statusCell = row.querySelectorAll('td')[1];
-				const actionCell = row.querySelectorAll('td')[3];
+				fetch(`task-detail/${taskId}/`, {
+					method: 'PATCH',
+					headers: {
+						'Authorization' : `Token ${token}`,
+						'Content-Type' : 'application/json',
+						'X-CSRFToken' : csrfToken
+					},
+					body: JSON.stringify({task_complete: false}),
+				}).then(res => {
+					return res.json()
+				}).then(data => {
+					const statusCell = row.querySelectorAll('td')[1];
+					const actionCell = row.querySelectorAll('td')[3];
 
-				// Update status text
-				statusCell.innerHTML = "Pending";
-				const toggleLink = actionCell.querySelector('.undo-btn');
-				toggleLink.remove();
+					// Update status text
+					statusCell.innerHTML = "Pending";
+					const toggleLink = actionCell.querySelector('.undo-btn');
+					toggleLink.remove();
 
-				const newToggleLink = document.createElement('a');
-				newToggleLink.href = '#';
-				newToggleLink.classList.add('done-btn');
-				newToggleLink.innerHTML = '<i class="bi bi-check-square"></i>';
+					const newToggleLink = document.createElement('a');
+					newToggleLink.href = '#';
+					newToggleLink.classList.add('done-btn');
+					newToggleLink.innerHTML = '<i class="bi bi-check-square"></i>';
 
-				actionCell.insertBefore(newToggleLink, actionCell.firstChild);
+					actionCell.insertBefore(newToggleLink, actionCell.firstChild);
 
-				const firstCell = row.querySelector('td');
-				firstCell.classList.remove('done-task');
-			}).catch(error => console.log(error))
+					const firstCell = row.querySelector('td');
+					firstCell.classList.remove('done-task');
+				}).catch(error => console.log(error))
+			}
+
+		}catch{
+			console.log("you are not logged in");
+			window.location.href = "/auth_app/user-login/"
 		}
 	})
 
 	// Delete a task.
 	// Select all delete buttons after tasks are loaded
 	document.addEventListener('click', (event) => {
-		if (event.target.closest('.delete-btn')) {
-			event.preventDefault();
+		try{
+			if (event.target.closest('.delete-btn')) {
+				event.preventDefault();
 
-			const row = event.target.closest('tr');
-			const taskId = row.getAttribute('data-task-id');
+				const row = event.target.closest('tr');
+				const taskId = row.getAttribute('data-task-id');
 
-			fetch(`task-detail/${taskId}/`, {
-				method: 'DELETE',
-				headers: {
-					'X-CSRFToken': csrfToken
-				}
-			})
-			.then(response => {
-				if (response.ok) {
-					row.remove();
-				} else {
-					console.error('Failed to delete task.');
-				}
-			})
-			.catch(error => {
-				console.error('Error deleting task:', error);
-			});
+				fetch(`task-detail/${taskId}/`, {
+					method: 'DELETE',
+					headers: {
+						'X-CSRFToken': csrfToken
+					}
+				})
+				.then(response => {
+					if (response.ok) {
+						row.remove();
+					} else {
+						console.error('Failed to delete task.');
+					}
+				})
+				.catch(error => {
+					console.error('Error deleting task:', error);
+				});
+			}
+		}catch{
+			console.log("you are not logged in");
+			window.location.href = "/auth_app/user-login/"
 		}
 	});
 
