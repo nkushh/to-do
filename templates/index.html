@@ -20,7 +20,6 @@
 					<div class="col-md-4"><h5>My Tasks</h5></div>
 					<div class="col-md-4" id="tasksHeader"></div>
 					<div class="col-md-4 btns-div">
-						<a href="{% url 'tasks:home' %}" class="btn default-btn" id="allTasksBtn"><i class="bi bi-list"></i> All</a>
 						<button class="btn default-btn" id="todayTasksBtn"><i class="bi bi-calendar3"></i> Today</button>
 						<button class="btn default-btn" id="pendingTasksBtn"><i class="bi bi-list-task"></i> Pending</button>
 					</div>
@@ -70,7 +69,7 @@
 
 	document.addEventListener('DOMContentLoaded', () => {
 		try{
-			fetch('tasks/', {
+			fetch('/', {
 				method: "GET",
 				headers: {
 					'Authorization' : `Token ${token}`
@@ -79,7 +78,6 @@
 			.then(res => res.json())
 			.then(tasks => {
 				tasksRow.innerHTML = '';
-				all_tasks_btn.style.display = 'none';
 
 				tasks.forEach(task => {
 					const row = document.createElement('tr');
@@ -94,14 +92,16 @@
 						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
 					</td>
 					`;
-					tasksRow.appendChild(row)
+					tasksRow.appendChild(row);
 				})
 			})
-			.catch(error => console.log(error))
+			.catch(error => console.log(`${error}`))
+			tasks_today_btn.style.display = 'flex';
+			pending_tasks_btn.style.display = 'flex';
 
 		}catch{
-			console.log("You have to be logged in.")
-			window.location.href = "/auth_app/user-login/"
+			console.log("You have to be logged in.");
+			window.location.href = "/auth_app/user-login/";
 		}
 	})
 
@@ -110,8 +110,7 @@
 			fetch('tasks-today/', {
 				method: "GET",
 				headers: {
-					'Authorization' : `Token ${token}`,
-					'Content-Type' : 'application/json'
+					'Authorization' : `Token ${token}`
 				}
 			})
 			.then(res => res.json())
@@ -153,8 +152,7 @@
 			fetch('pending-tasks/', {
 				method: "GET",
 				headers: {
-					'Authorization' : `Token ${token}`,
-					'Content-Type' : 'application/json'
+					'Authorization' : `Token ${token}`
 				}
 			})
 			.then(res => res.json())

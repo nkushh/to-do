@@ -26,7 +26,7 @@ class ListCreateTaskView(generics.ListCreateAPIView):
 		return tasks_models.Task.objects.filter(created_by=self.request.user).order_by('-pk')
 	
 	def perform_create(self, serializer):
-		serializer.save(created_by=self.request.user)
+		serializer.save(date_created=datetime.datetime.now(), created_by=self.request.user)
 		return super().perform_create(serializer)
 
 

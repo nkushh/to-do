@@ -16,23 +16,32 @@
 	</div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-	{% block scripts %}{% endblock %}
 	<script>
 		const token = localStorage.getItem('authToken');
-		const logout_btn = document.getElementById('logoutLink');
-		console.log(token);
+		const loggedInUser = localStorage.getItem('username');
+		const username = document.getElementById('loggedInUser')
+		const logout_link = document.getElementById('logoutLink');
+		const logout_btn = document.getElementById('logoutNav');
 
 		if (token) {
-			document.getElementById('logoutNav').style.display = 'block';
+			logout_link.style.display = 'block';
 			document.getElementById('loginNav').style.display = 'none';
 			document.getElementById('signupNav').style.display = 'none';
 		} else {
-			document.getElementById('logoutNav').style.display = 'none';
+			logout_btn.style.display = 'none';
+			logout_link.style.display = 'none';
 			document.getElementById('loginNav').style.display = 'block';
 			document.getElementById('signupNav').style.display = 'block';
 		}
 
-		logout_btn.addEventListener('click', (event) => {
+		if(loggedInUser){
+			username.style.display = 'block';
+			username.innerHTML = loggedInUser;
+		}else{
+			username.style.display = 'none';
+		}
+
+		logout_link.addEventListener('click', (event) => {
 			try{
 				fetch('/auth_app/logout/', {
 					method: 'POST',
@@ -43,8 +52,8 @@
 				})
 				.then(res => res.json())
 				.then(data => {
-					console.log(data.detail);
 					localStorage.removeItem('authToken');
+					localStorage.removeItem('username');
 					window.location.href = "/"
 				})
 
@@ -55,5 +64,6 @@
 		})
 
 	</script>
+	{% block scripts %}{% endblock %}
   </body>
 </html>
