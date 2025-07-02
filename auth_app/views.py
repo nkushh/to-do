@@ -32,7 +32,6 @@ class SignupUserView(generics.CreateAPIView):
 		# Generate token
 		token = Token.objects.create(user=user)
 		self.token = token
-		return super().perform_create(serializer)
 
 	def create(self, request, *args, **kwargs):
 		response = super().create(request, *args, **kwargs)
@@ -42,26 +41,27 @@ class SignupUserView(generics.CreateAPIView):
 		)
 	
 class LoginView(APIView):
-    def post(self, request, *args, **kwargs):
-        username = request.data.get('username', '').lower()
-        password = request.data.get('password')
+	def post(self, request, *args, **kwargs):
+		username = request.data.get('username').lower()
+		password = request.data.get('password')
 
-        try:
-            user = auth_models.UserProfile.objects.get(username=username)
-        except auth_models.UserProfile.DoesNotExist:
-            return Response({"detail": "Wrong username/password!"},
-                            status=status.HTTP_400_BAD_REQUEST)
+		try:
+			user = auth_models.UserProfile.objects.get(username=username)
+		except auth_models.UserProfile.DoesNotExist:
+			return Response({"detail": "User does not exist!"}, status=status.HTTP_404_NOT_FOUND)
+		
+		if not user.is_active:
+			return Response({"detail": "Account is inactive!"}, status=status.HTTP_403_FORBIDDEN)
 
-        if not user.check_password(password):
-            return Response({"detail": "Wrong username/password!"},
-                            status=status.HTTP_400_BAD_REQUEST)
+		if not user.check_password(password):
+			return Response({"detail": "Wrong username/password!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        token, _ = Token.objects.get_or_create(user=user)
-        serializer = auth_serializers.UserProfileSerializer(user)
-        return Response({
-            "token": token.key,
-            "user": serializer.data
-        }, status=status.HTTP_200_OK)
+		token, _ = Token.objects.get_or_create(user=user)
+		serializer = auth_serializers.UserProfileSerializer(user)
+		return Response({
+			"token": token.key,
+			"user": serializer.data
+		}, status=status.HTTP_200_OK)
 	
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]

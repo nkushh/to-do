@@ -15,7 +15,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 		email = validated_data.get('email')
 		password = validated_data.get('password')
 		
-		user = auth_models.UserProfile(username=username, email=email)
+		user = auth_models.UserProfile(username=username, email=email, is_active=True)
 		user.set_password(password)
 		user.save()
 		return user

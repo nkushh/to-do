@@ -17,9 +17,9 @@
 		<div class="card">
 			<div class="card-header">
 				<div class="row">
-					<div class="col-md-4"><h5>My Tasks</h5></div>
-					<div class="col-md-4" id="tasksHeader"></div>
-					<div class="col-md-4 btns-div">
+					<div class="col-md-3"><h5>My Tasks</h5></div>
+					<div class="col-md-3" id="tasksHeader"></div>
+					<div class="col-md-6 btns-div">
 						<button class="btn default-btn" id="allTasksBtn"><i class="bi bi-list"></i> All</button>
 						<button class="btn default-btn" id="todayTasksBtn"><i class="bi bi-calendar3"></i> Today</button>
 						<button class="btn default-btn" id="pendingTasksBtn"><i class="bi bi-list-task"></i> Pending</button>
@@ -47,9 +47,11 @@
 <script>
 	const header_title = document.getElementById('tasksHeader');
 	const header_title_text = document.createElement('h5');
+	// Buttons
 	const all_tasks_btn = document.getElementById('allTasksBtn');
 	const tasks_today_btn = document.getElementById('todayTasksBtn');
 	const pending_tasks_btn = document.getElementById('pendingTasksBtn');
+	// Table data row
 	const tasksRow = document.getElementById('tasksRow');
 
 	function format_date(date_info){
@@ -70,7 +72,7 @@
 
 	document.addEventListener('DOMContentLoaded', () => {
 		try{
-			fetch('/', {
+			fetch('tasks/', {
 				method: "GET",
 				headers: {
 					'Authorization' : `Token ${token}`
@@ -97,6 +99,7 @@
 				})
 			})
 			.catch(error => console.log(`${error}`))
+			all_tasks_btn.style.display = 'none';
 			tasks_today_btn.style.display = 'flex';
 			pending_tasks_btn.style.display = 'flex';
 
