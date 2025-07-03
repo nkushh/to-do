@@ -70,23 +70,28 @@
 		return formattedDate;
 	}
 
-	document.addEventListener('DOMContentLoaded', () => {
-		try{
-			fetch('tasks/', {
-				method: "GET",
-				headers: {
-					'Authorization' : `Token ${token}`
-				}
-			})
-			.then(res => res.json())
-			.then(tasks => {
-				tasksRow.innerHTML = '';
+	function loadAllTasks() {
+		fetch('tasks/', {
+			method: "GET",
+			headers: {
+				'Authorization' : `Token ${token}`
+			}
+		})
+		.then(response => response.json())
+		.then(tasks => {
+			tasksRow.innerHTML = '';
+			header_title_text.innerHTML = "All";
+			header_title.appendChild(header_title_text);
 
-				tasks.forEach(task => {
-					const row = document.createElement('tr');
-					row.setAttribute('data-task-id', task.id);
+			all_tasks_btn.style.display = 'none';
+			tasks_today_btn.style.display = 'flex';
+			pending_tasks_btn.style.display = 'flex';
 
-					row.innerHTML = `
+			tasks.forEach(task => {
+				const row = document.createElement('tr');
+				row.setAttribute('data-task-id', task.id);
+
+				row.innerHTML = `
 					<td class="${task.task_complete ? 'done-task' : ''}">${task.task_title}</td>
 					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
 					<td>${format_date(task.date_created)}</td>
@@ -94,20 +99,32 @@
 						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
 						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
 					</td>
-					`;
-					tasksRow.appendChild(row);
-				})
-			})
-			.catch(error => console.log(`${error}`))
-			all_tasks_btn.style.display = 'none';
-			tasks_today_btn.style.display = 'flex';
-			pending_tasks_btn.style.display = 'flex';
+				`;
+				tasksRow.appendChild(row);
+			});
+		})
+		.catch(error => console.log(`${error}`));
+	}
 
-		}catch{
+
+	document.addEventListener('DOMContentLoaded', () => {
+		try {
+			loadAllTasks(); // Load tasks on page load
+		} catch {
 			console.log("You have to be logged in.");
 			window.location.href = "/auth_app/user-login/";
 		}
-	})
+	});
+
+	all_tasks_btn.addEventListener('click', (event) => {
+		event.preventDefault();
+		try {
+			loadAllTasks();
+		} catch {
+			console.log("You have to be logged in.");
+			window.location.href = "/auth_app/user-login/";
+		}
+	});
 
 	tasks_today_btn.addEventListener('click', (event) => {
 		try{
@@ -117,7 +134,7 @@
 					'Authorization' : `Token ${token}`
 				}
 			})
-			.then(res => res.json())
+			.then(response => response.json())
 			.then(tasks => {
 				tasksRow.innerHTML = '';
 				header_title_text.innerHTML = "Today";
@@ -159,7 +176,7 @@
 					'Authorization' : `Token ${token}`
 				}
 			})
-			.then(res => res.json())
+			.then(response => response.json())
 			.then(tasks => {
 				tasksRow.innerHTML = ''
 				
@@ -211,9 +228,7 @@
 				body: JSON.stringify({
 					task_title: task
 				})
-			}).then(res => {
-				return res.json();
-			})
+			}).then(response => response.json())
 			.then(data => {
 				task_form.reset();
 

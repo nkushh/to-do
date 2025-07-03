@@ -7,6 +7,9 @@
 
 .navbar-logo a{
 	text-decoration: none;
+	color: #333;
+	font-weight: 700;
+	font-size: 1em;
 }
 
 .navbar-nav a{
@@ -30,20 +33,49 @@
 	margin: auto 1em;
 }
 
+#logoutLink{
+	background-color: red;
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid #eee;
+	width: 2em;
+	height: 2em;
+	border-radius: 50%;
+}
+
+#logoutLink i {
+	pointer-events: none;
+}
+
 
 .default-btn{
 	background: #fff;
 	border: 1px solid #333;
 }
 
+.delete-btn{
+	color: red;
+}
+
+.done-btn{
+	color: green;
+}
+
+.undo-btn{
+	color: orange;
+}
+
 .btns-div{
 	display: flex;
 	align-items: center;
-	justify-content: space-around;
+	justify-content: end;
 }
 
 .btns-div .btn{
 	font-size: .8em;
+	margin: auto .2em;
 }
 
 .btns-div .btn:hover{
@@ -57,7 +89,7 @@
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	border: 1px solid #eee;
+	border: 1px solid #444;
 }
 
 #addTaskForm input{

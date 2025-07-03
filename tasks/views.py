@@ -37,6 +37,7 @@ class FetchUpdateDeleteTaskView(generics.RetrieveUpdateDestroyAPIView):
 class CurrentDayTasksView(generics.ListAPIView):
 	date_today = datetime.date.today()
 	serializer_class = tasks_serializers.TaskModelSerializer
+	print(f'Date: {date_today}')
 
 	permission_classes = [IsAuthenticated]
 	authentication_classes = [TokenAuthentication]

@@ -2,11 +2,11 @@
 	<div class="col-md-12">
 		<div class="navbar">
 			<div class="navbar-logo">
-				<a href="">Shughuli</a>
+				<a href="{% url 'tasks:home' %}">Shughuli</a>
 			</div>
 			<div class="navbar-nav">
 				<ul>
-					<li id="logoutNav"><a href="#" id="loggedInUser"></a></li>
+					<li><a href="#" id="loggedInUser"></a></li>
 					<li id="logoutNav"><a href="#" id="logoutLink"><i class="bi bi-power"></i></a></li>
 					<li id="loginNav"><a href="{% url 'auth_app:user_login' %}">Login</a></li>
 					<li id="signupNav"><a href="{% url 'auth_app:user_signup' %}">Signup</a></li>
