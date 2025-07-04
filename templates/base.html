@@ -24,7 +24,7 @@
 		const logout_btn = document.getElementById('logoutNav');
 
 		if (token) {
-			logout_link.style.display = 'block';
+			logout_link.style.display = 'flex';
 			document.getElementById('loginNav').style.display = 'none';
 			document.getElementById('signupNav').style.display = 'none';
 		} else {
@@ -35,8 +35,8 @@
 		}
 
 		if(loggedInUser){
-			username.style.display = 'block';
-			username.innerHTML = loggedInUser;
+			username.style.display = 'flex';
+			username.innerHTML = `<i class="bi bi-person-circle"></i>&nbsp ${loggedInUser}`;
 		}else{
 			username.style.display = 'none';
 		}
