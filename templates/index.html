@@ -14,7 +14,7 @@
 </div>
 <div class="row">
 	<div class="offset-md-3 col-md-6">
-		<div class="card">
+		<div class="card tasks-card">
 			<div class="card-header">
 				<div class="row">
 					<div class="col-md-3"><h5>My Tasks</h5></div>
@@ -27,16 +27,8 @@
 				</div>
 				
 			</div>
-			<div class="card-body">
-				<table class="table">
-					<thead>
-						<th>Task</th>
-						<th>Status</th>
-						<th>Date created</th>
-						<th class="text-center">Action</th>
-					</thead>
-					<tbody id="tasksRow"></tbody>
-				</table>
+			<div class="card-body">	
+				<div id="tasksRow"></div>
 			</div>
 	</div>
 	</div>
@@ -45,15 +37,20 @@
 {% endblock %}
 {% block scripts %}
 <script>
+	// Form
+	let task_form = document.getElementById('addTaskForm');
+	const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+	// Tasks card
 	const header_title = document.getElementById('tasksHeader');
 	const header_title_text = document.createElement('h5');
 	// Buttons
 	const all_tasks_btn = document.getElementById('allTasksBtn');
 	const tasks_today_btn = document.getElementById('todayTasksBtn');
 	const pending_tasks_btn = document.getElementById('pendingTasksBtn');
-	// Table data row
+	// Tasks data row
 	const tasksRow = document.getElementById('tasksRow');
 
+	// utility function to format datetime objects
 	function format_date(date_info){
 		const formattedDate = new Date(date_info)
 			.toLocaleString('en-us', {
@@ -70,6 +67,7 @@
 		return formattedDate;
 	}
 
+	// Utility function to fetch tasks
 	function loadAllTasks() {
 		fetch('tasks/', {
 			method: "GET",
@@ -80,6 +78,7 @@
 		.then(response => response.json())
 		.then(tasks => {
 			tasksRow.innerHTML = '';
+
 			header_title_text.innerHTML = "All";
 			header_title.appendChild(header_title_text);
 
@@ -88,17 +87,19 @@
 			pending_tasks_btn.style.display = 'flex';
 
 			tasks.forEach(task => {
-				const row = document.createElement('tr');
+				const row = document.createElement('div');
+				row.classList.add('task');
 				row.setAttribute('data-task-id', task.id);
 
 				row.innerHTML = `
-					<td class="${task.task_complete ? 'done-task' : ''}">${task.task_title}</td>
-					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
-					<td>${format_date(task.date_created)}</td>
-					<td class="text-center">
+					<div class="task-detail">
+						<p class="task-detail-title ${task.task_complete ? 'done-task' : ''}">${task.task_title}</p>
+						<p>${format_date(task.date_created)}</p>
+					</div>
+					<div class="task-action text-center">
 						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
 						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
-					</td>
+					</div>
 				`;
 				tasksRow.appendChild(row);
 			});
@@ -106,7 +107,7 @@
 		.catch(error => console.log(`${error}`));
 	}
 
-
+	// Index page load
 	document.addEventListener('DOMContentLoaded', () => {
 		try {
 			loadAllTasks(); // Load tasks on page load
@@ -116,6 +117,7 @@
 		}
 	});
 
+	// All tasks button click
 	all_tasks_btn.addEventListener('click', (event) => {
 		event.preventDefault();
 		try {
@@ -126,6 +128,7 @@
 		}
 	});
 
+	// Current day tasks
 	tasks_today_btn.addEventListener('click', (event) => {
 		try{
 			fetch('tasks-today/', {
@@ -137,24 +140,28 @@
 			.then(response => response.json())
 			.then(tasks => {
 				tasksRow.innerHTML = '';
+
 				header_title_text.innerHTML = "Today";
 				header_title.appendChild(header_title_text);
+
 				tasks_today_btn.style.display = 'none';
 				all_tasks_btn.style.display = 'flex';
 				pending_tasks_btn.style.display = 'flex';
 
 				tasks.forEach(task => {
-					const row = document.createElement('tr');
+					const row = document.createElement('div');
+					row.classList.add('task');
 					row.setAttribute('data-task-id', task.id);
 
 					row.innerHTML = `
-					<td class="${task.task_complete ? 'done-task' : ''}">${task.task_title}</td>
-					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
-					<td>${format_date(task.date_created)}</td>
-					<td class="text-center">
-						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
-						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
-					</td>
+						<div class="task-detail">
+							<p class="task-detail-title ${task.task_complete ? 'done-task' : ''}">${task.task_title}</p>
+							<p>${format_date(task.date_created)}</p>
+						</div>
+						<div class="task-action text-center">
+							<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
+							<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
+						</div>
 					`;
 					tasksRow.appendChild(row);
 				})
@@ -167,7 +174,7 @@
 		
 	})
 
-
+	// Pending tasks
 	pending_tasks_btn.addEventListener('click', () =>{
 		try{
 			fetch('pending-tasks/', {
@@ -182,22 +189,25 @@
 				
 				header_title_text.innerHTML = "Pending";
 				header_title.appendChild(header_title_text);
+
 				pending_tasks_btn.style.display = 'none';
 				all_tasks_btn.style.display = 'flex';
 				tasks_today_btn.style.display = 'flex';
 
 				tasks.forEach(task => {
-					const row = document.createElement('tr');
+					const row = document.createElement('div');
+					row.classList.add('task');
 					row.setAttribute('data-task-id', task.id);
 
 					row.innerHTML = `
-					<td class="${task.task_complete ? 'done-task' : ''}">${task.task_title}</td>
-					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
-					<td>${format_date(task.date_created)}</td>
-					<td class="text-center">
-						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
-						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
-					</td>
+						<div class="task-detail">
+							<p class="task-detail-title ${task.task_complete ? 'done-task' : ''}">${task.task_title}</p>
+							<p>${format_date(task.date_created)}</p>
+						</div>
+						<div class="task-action text-center">
+							<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
+							<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
+						</div>
 					`;
 					tasksRow.appendChild(row);
 				})
@@ -210,10 +220,7 @@
 		
 	})
 
-
-	let task_form = document.getElementById('addTaskForm');
-	const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
-
+	// Add new task
 	task_form.addEventListener('submit', (event) =>{
 		try{
 			event.preventDefault();
@@ -228,24 +235,27 @@
 				body: JSON.stringify({
 					task_title: task
 				})
-			}).then(response => response.json())
+			})
+			.then(response => response.json())
 			.then(data => {
 				task_form.reset();
 
 				const task = data;
-				const row = document.createElement('tr');
+				const row = document.createElement('div');
+				row.classList.add('task');
 				row.setAttribute('data-task-id', task.id);
 
 				row.innerHTML = `
-					<td>${task.task_title}</td>
-					<td>${task.task_complete ? 'Complete' : 'Pending'}</td>
-					<td>${format_date(task.date_created)}</td>
-					<td class="text-center">
-						<a href="#" class="done-btn"><i class="bi bi-check-square"></i></a> | 
+					<div class="task-detail">
+						<p class="task-detail-title ${task.task_complete ? 'done-task' : ''}">${task.task_title}</p>
+						<p>${format_date(task.date_created)}</p>
+					</div>
+					<div class="task-action text-center">
+						<a href="#" class="${task.task_complete ? 'undo-btn' : 'done-btn'}"><i class="bi ${task.task_complete ? 'bi-arrow-counterclockwise' : 'bi-check-square'}"></i></a> | 
 						<a href="#" class="delete-btn"><i class="bi bi-trash"></i></a>
-					</td>
+					</div>
 				`;
-				document.getElementById('tasksRow').appendChild(row);
+				tasksRow.appendChild(row);
 			})
 			.catch(error => console.log("ERROR!"))
 
@@ -260,7 +270,8 @@
 		try{
 			if(event.target.closest('.done-btn')){
 				event.preventDefault();
-				const row = event.target.closest('tr');
+
+				const row = event.target.closest('.task');
 				const taskId = row.getAttribute('data-task-id');
 
 				fetch(`task-detail/${taskId}/`, {
@@ -271,26 +282,24 @@
 						'X-CSRFToken' : csrfToken
 					},
 					body: JSON.stringify({task_complete: true}),
-				}).then(res => {
-					return res.json()
-				}).then(data => {
-					const statusCell = row.querySelectorAll('td')[1];
-					const actionCell = row.querySelectorAll('td')[3];
+				})
+				.then(response => response.json())
+				.then(data => {
+					const taskItem = row.querySelector('.task-detail-title');
+					const actionDiv = row.querySelector('.task-action');
 
-					// Update status text
-					statusCell.innerHTML = "Complete";
-					const toggleLink = actionCell.querySelector('.done-btn');
+					// Update actions
+					const toggleLink = actionDiv.querySelector('.done-btn');
 					toggleLink.remove();
 
 					const newToggleLink = document.createElement('a');
 					newToggleLink.href = '#';
 					newToggleLink.classList.add('undo-btn');
 					newToggleLink.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
-					// Insert the new link at the beginning of the cell
-					actionCell.insertBefore(newToggleLink, actionCell.firstChild);
 
-					const firstCell = row.querySelector('td');
-					firstCell.classList.add('done-task');
+					// Insert the new link at the beginning of the action div
+					actionDiv.insertBefore(newToggleLink, actionDiv.firstChild);
+					taskItem.classList.add('done-task');
 				}).catch(error => console.log(error))
 			}
 
@@ -305,7 +314,7 @@
 		try{
 			if(event.target.closest('.undo-btn')){
 				event.preventDefault();
-				const row = event.target.closest('tr');
+				const row = event.target.closest('.task');
 				const taskId = row.getAttribute('data-task-id');
 
 				fetch(`task-detail/${taskId}/`, {
@@ -319,12 +328,11 @@
 				}).then(res => {
 					return res.json()
 				}).then(data => {
-					const statusCell = row.querySelectorAll('td')[1];
-					const actionCell = row.querySelectorAll('td')[3];
+					const taskItem = row.querySelector('.task-detail-title');
+					const actionDiv = row.querySelector('.task-action');
 
-					// Update status text
-					statusCell.innerHTML = "Pending";
-					const toggleLink = actionCell.querySelector('.undo-btn');
+					// Update actions
+					const toggleLink = actionDiv.querySelector('.undo-btn');
 					toggleLink.remove();
 
 					const newToggleLink = document.createElement('a');
@@ -332,10 +340,8 @@
 					newToggleLink.classList.add('done-btn');
 					newToggleLink.innerHTML = '<i class="bi bi-check-square"></i>';
 
-					actionCell.insertBefore(newToggleLink, actionCell.firstChild);
-
-					const firstCell = row.querySelector('td');
-					firstCell.classList.remove('done-task');
+					actionDiv.insertBefore(newToggleLink, actionDiv.firstChild);
+					taskItem.classList.remove('done-task');
 				}).catch(error => console.log(error))
 			}
 
@@ -352,12 +358,13 @@
 			if (event.target.closest('.delete-btn')) {
 				event.preventDefault();
 
-				const row = event.target.closest('tr');
+				const row = event.target.closest('.task');
 				const taskId = row.getAttribute('data-task-id');
 
 				fetch(`task-detail/${taskId}/`, {
 					method: 'DELETE',
 					headers: {
+						'Authorization': `Token ${token}`,
 						'X-CSRFToken': csrfToken
 					}
 				})

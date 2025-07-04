@@ -83,6 +83,33 @@
 	border: 1px solid;
 }
 
+/* Tasks */
+.tasks-card{
+	background-color: #efefef;
+}
+
+.task{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #fff;
+	padding: .5em;
+	margin: 1em auto;
+	border: 1px solid;
+	border-radius: .5em;
+}
+
+.task-detail{
+	display: flex;
+	flex-direction: column;
+	line-height: .5;
+}
+
+.task-detail-title{
+	font-weight: 700;
+	font-size: 1em;
+}
+
 #addTaskForm{
 	display: flex;
 	flex-direction: row;
@@ -96,6 +123,7 @@
 	flex: 1;
 	border: none;
 }
+
 #addTaskForm button{
 	border: none;
 	border-radius: 0;

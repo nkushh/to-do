@@ -14,6 +14,7 @@ class TaskModelSerializer(ModelSerializer):
 		date_created = datetime.date.today()
 
 		validated_data['task_title'] = task_title
+		validated_data['created_by'] = user
 		if tasks_models.Task.objects.filter(task_title=task_title, created_by=user, date_created__date=date_created).exists():
 			raise ValidationError("Another task with a similar title exists")
 		return super().create(validated_data)
