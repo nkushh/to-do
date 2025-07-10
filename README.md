@@ -123,7 +123,6 @@ All API interactions use the fetch() API with proper error handling.
 
 
 **Future Improvements**
-- User authentication
 
 - Task categories/tags
 

@@ -150,6 +150,13 @@
 	margin: auto 1em;
 }
 
+/* Task categories */
+.task-categories-card .card-header{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
 /* Login */
 .form-group{
 	margin: 1em auto;

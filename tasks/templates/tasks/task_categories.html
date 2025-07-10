@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Task Categories{% endblock %}
+
+{% block content %}
+<div class="offset-md-3 col-md-6">
+	<div class="card task-categories-card">
+		<div class="card-header">
+			<h5>Task categories</h5>
+			<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskCategory">+ Category</button>
+		</div>
+		<div class="card-body">
+			<table class="table">
+				<thead>
+					<th>Category name</th>
+					<th>Date created</th>
+					<th>Status</th>
+					<th class="text-center">Action</th>
+				</thead>
+				<tbody id="categoryRow"></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addTaskCategory" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Add Category</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addCategoryForm" method="POST">{% csrf_token %}
+			<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+			<input type="text" class="form-control" id="category_name" placeholder="Category name" required>
+		
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Modal -->
+ <div class="modal fade" id="updateTaskCategory" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Update Category</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="updateCategoryForm" method="POST">{% csrf_token %}
+			<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+			<input type="hidden" id="categoryID">
+			<input type="text" class="form-control" id="categoryNameUpdate" required>
+		
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+	const category_row = document.getElementById('categoryRow');
+	const addCategoryModal = new bootstrap.Modal(document.getElementById('addTaskCategory'));
+	const addTaskCategoryForm = document.getElementById('addCategoryForm');
+
+	const updateCategoryModal = new bootstrap.Modal(document.getElementById('updateTaskCategory'));
+	const updateTaskCategoryForm = document.getElementById('updateCategoryForm');
+
+	const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+	// utility function to format datetime objects
+	function format_date(date_info){
+		const formattedDate = new Date(date_info)
+			.toLocaleString('en-us', {
+				month: 'long',
+				day: 'numeric',
+				year: 'numeric',
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true,
+			})
+			.replace('AM', 'a.m.')
+			.replace('PM', 'p.m.');
+
+		return formattedDate;
+	}
+
+	// Load all categories
+	document.addEventListener('DOMContentLoaded', () => {
+		fetch('/task-categories/', {
+			method: 'GET',
+			headers: {
+				'Authorization' : `Token ${token}`
+			}
+		})
+		.then(response => response.json())
+		.then(categories => {
+			category_row.innerHTML = '';
+
+			categories.forEach(category => {
+				const row = document.createElement('tr');
+				const category_id = row.setAttribute('row-data-id', category.id);
+				row.innerHTML = `
+					<td>${category.category_name}</td>
+					<td>${format_date(category.date_created)}</td>
+					<td>${category.active_status ? "Active" : "Inactive"}</td>
+					<td class="text-center"><a href="#" class="edit-btn"><i class="bi bi-pencil-square"></i></a> | <a href="#" class="delete-btn"><i class="bi bi-trash"></i></a></td>
+				`;
+				category_row.appendChild(row);
+			})
+		})
+		.catch(errors => console.log(errors))
+	})
+
+
+	// Create new category
+	addTaskCategoryForm.addEventListener('submit', (event) => {
+		event.preventDefault();
+
+		const categoryName = document.getElementById('category_name').value;
+
+		fetch('/task-categories/', {
+			method: "POST",
+			headers: {
+				'Authorization' : `Token ${token}`,
+				'Content-Type' : 'Application/json',
+				'X-CSRFToken' : csrfToken
+			},
+			body: JSON.stringify({
+				category_name : categoryName
+			})
+		})
+		.then(response => response.json())
+		.then(data => {
+			addTaskCategoryForm.reset();
+			addCategoryModal.hide();
+
+			const row = document.createElement('tr');
+			row.setAttribute('row-data-id', data.id);
+			row.innerHTML = `
+				<td>${data.category_name}</td>
+				<td>${format_date(data.date_created)}</td>
+				<td>${data.active_status ? "Active" : "Inactive"}</td>
+				<td class="text-center"><a href="#" class="edit-btn"><i class="bi bi-pencil-square"></i></a> | <a href="#" class="delete-btn"><i class="bi bi-trash"></i></a></td>
+			`
+			category_row.appendChild(row);
+		})
+		.catch(errors => console.log(errors))
+
+	})
+
+	// Update category
+	document.addEventListener('click', (event) => {
+		if(event.target.closest('.edit-btn')){
+			const row = event.target.closest('tr');
+			const categoryID = row.getAttribute('row-data-id');
+
+			fetch(`/category-detail/${categoryID}/`, {
+				method: 'GET',
+				headers: {
+					'Authorization' : `Token ${token}`,
+					'Content-Type' : 'application/json'
+				}
+			})
+			.then(response => response.json())
+			.then(data => {
+				updateCategoryModal.show();
+				let category_id_field = document.getElementById('categoryID').value = data.id;
+				let category_input_field = document.getElementById('categoryNameUpdate').value = data.category_name;
+			})
+			.catch(errors => console.log(errors))
+		}
+	})
+
+	updateTaskCategoryForm.addEventListener('submit', (event) => {
+		event.preventDefault();
+
+		const category_id = document.getElementById('categoryID').value;
+		const category_name = document.getElementById('categoryNameUpdate').value;
+
+		const row = document.querySelector(`tr[row-data-id="${category_id}"]`);
+
+		fetch(`/category-detail/${category_id}/`, {
+			method: "PATCH",
+			headers: {
+				'Authorization' : `Token ${token}`,
+				'Content-Type' : 'application/json',
+				'X-CSRFToken' : csrfToken
+			},
+			body: JSON.stringify({
+				category_name: category_name
+		})
+		})
+		.then(response => response.json())
+		.then(data => {
+			const row_cells = row.cells;
+			row_cells[0].textContent = data.category_name;
+			row_cells[1].textContent = format_date(data.date_created);
+			row_cells[2].textContent = data.active_status ? "Active" : "Inactive"
+
+			updateTaskCategoryForm.reset();
+			updateCategoryModal.hide();
+			
+		})
+		.catch(errors => console.error(errors))
+	})
+
+	// Delete category
+	document.addEventListener('click', (event) => {
+		
+		if(event.target.closest('.delete-btn')){
+			event.preventDefault();
+
+			const row = event.target.closest('tr');
+			const categoryID = row.getAttribute('row-data-id');
+
+			fetch(`/category-detail/${categoryID}/`, {
+				method: "DELETE",
+				headers: {
+					'Authorization' : `Token ${token}`,
+					'X-CSRFToken' : csrfToken
+				}
+			})
+			.then(response => {
+				if (response.ok){
+					row.remove();
+				}else{
+					console.error("Delete action was not successful");
+				}
+			})
+			.catch(errors => console.log(errors))
+		}
+	})
+
+</script>
+{% endblock %}

@@ -257,7 +257,7 @@
 				`;
 				tasksRow.appendChild(row);
 			})
-			.catch(error => console.log("ERROR!"))
+			.catch(errors => console.log(`ERROR: ${errors}`))
 
 		}catch{
 			console.log("you are not logged in");

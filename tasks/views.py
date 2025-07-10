@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework import generics, status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
@@ -16,6 +17,28 @@ import datetime
 def index(request):
 	return render(request, "index.html")
 
+# TASKS CATEGORIES
+def task_categories(request):
+	return render(request, "tasks/task_categories.html")
+
+class ListCreateCategoryView(generics.ListCreateAPIView):
+	serializer_class = tasks_serializers.TaskCategorySerializer
+
+	permission_classes = [IsAuthenticated]
+	authentication_classes = [TokenAuthentication]
+
+	def get_queryset(self):
+		return tasks_models.TaskCategory.objects.filter(Q(system_defined=True) | Q(created_by=self.request.user)).order_by('category_name')
+	
+class FetchUpdateDestroyCategory(generics.RetrieveUpdateDestroyAPIView):
+	queryset = tasks_models.TaskCategory.objects.order_by('category_name')
+	serializer_class = tasks_serializers.TaskCategorySerializer
+	lookup_field = 'pk'
+
+	permission_classes = [IsAuthenticated]
+	authentication_classes = [TokenAuthentication]
+
+# TASKS
 class ListCreateTaskView(generics.ListCreateAPIView):
 	serializer_class = tasks_serializers.TaskModelSerializer
 

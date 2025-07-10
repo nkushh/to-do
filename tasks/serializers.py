@@ -3,6 +3,17 @@ from rest_framework.exceptions import ValidationError
 from . import models as tasks_models
 import datetime
 
+class TaskCategorySerializer(ModelSerializer):
+	class Meta:
+		model = tasks_models.TaskCategory
+		fields = '__all__'
+
+	def create(self, validated_data):
+		category_name = validated_data.get('category_name').capitalize()
+		validated_data['category_name'] = category_name
+		validated_data['created_by'] = self.context['request'].user
+		return super().create(validated_data)
+
 class TaskModelSerializer(ModelSerializer):
 	class Meta:
 		model = tasks_models.Task
