@@ -15,7 +15,11 @@ import datetime
 
 # Create your views here.
 def index(request):
-	return render(request, "index.html")
+	task_categories = tasks_models.TaskCategory.objects.order_by('category_name')
+	context = {
+		'task_categories' : task_categories
+	}
+	return render(request, "index.html", context)
 
 # TASKS CATEGORIES
 def task_categories(request):
@@ -60,7 +64,6 @@ class FetchUpdateDeleteTaskView(generics.RetrieveUpdateDestroyAPIView):
 class CurrentDayTasksView(generics.ListAPIView):
 	date_today = datetime.date.today()
 	serializer_class = tasks_serializers.TaskModelSerializer
-	print(f'Date: {date_today}')
 
 	permission_classes = [IsAuthenticated]
 	authentication_classes = [TokenAuthentication]

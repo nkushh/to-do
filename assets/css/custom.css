@@ -110,28 +110,6 @@
 	font-size: 1em;
 }
 
-#addTaskForm{
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	border: 1px solid #444;
-	border-radius: .5em;
-}
-
-#addTaskForm input{
-	flex: 1;
-	border: none;
-}
-
-#addTaskForm button{
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-	border-top-right-radius: .5em;
-	border-bottom-right-radius: .5em;
-}
-
 .done-task{
 	color: red !important;
 	text-decoration: line-through;
